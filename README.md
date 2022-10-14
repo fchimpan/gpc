@@ -27,7 +27,7 @@ export CONFLUENCE_USER_EMAIL=<confluence user email>
 | --debug        |          | debug flag                                                       | 
 
 ```bash
-% gpc main.go -t 'page titlr' -s 'my-space' -d 'my-domain' -p '12345' -b 'hoge'                              
+% gpc main.go -t 'page title' -s 'my-space' -d 'my-domain'                         
 # page generation succeeded!!
 # title: page title
 # https://my-domain.atlassian.net/wiki/spaces/my-space/pages/xxxx
