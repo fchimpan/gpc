@@ -5,12 +5,12 @@
 ### brew
 
 ```bash
+brew tap fchimpan/gpc
 brew install fchimpan/gpc/gpc
 ```
 
-### Go
+### go install
 ```bash
-brew tap fchimpan/gpc
 go install github.com/fchimpan/gpc
 ```
 
