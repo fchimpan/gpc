@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -82,9 +83,16 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&o.title, "title", "t", "", "page title")
 	rootCmd.PersistentFlags().StringVarP(&o.spaceKey, "spaceKey", "s", "", "space key to generate page")
 	rootCmd.PersistentFlags().StringVarP(&o.domain, "domain", "d", "", "confluence domain: e.g. https://<domain>.atlassian.net/wiki/home")
-	rootCmd.MarkPersistentFlagRequired("title")
-	rootCmd.MarkPersistentFlagRequired("spaceKey")
-	rootCmd.MarkPersistentFlagRequired("domain")
+
+	if err := rootCmd.MarkPersistentFlagRequired("title"); err != nil {
+		log.Fatal(err)
+	}
+	if err := rootCmd.MarkPersistentFlagRequired("spaceKey"); err != nil {
+		log.Fatal(err)
+	}
+	if err := rootCmd.MarkPersistentFlagRequired("domain"); err != nil {
+		log.Fatal(err)
+	}
 
 	rootCmd.PersistentFlags().StringVarP(&o.parent, "parent", "p", "", "parent page ID")
 	rootCmd.PersistentFlags().StringVarP(&o.body, "body", "b", "", "page body")
