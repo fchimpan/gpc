@@ -1,0 +1,49 @@
+before:
+  hooks:
+    - go mod tidy
+    - go mod download
+
+builds:
+    - env: 
+      - CGO_ENABLED=0
+      goos:
+        - darwin
+        - linux
+        - windows
+      goarch:
+        - amd64
+        - arm64
+archives:
+  - replacements:
+      darwin: Darwin
+      linux: Linux
+      windows: Windows
+      amd64: x86_64
+    format_overrides:
+      - goos: windows
+        format: zip
+
+checksum:
+  name_template: 'checksums.txt'
+
+snapshot:
+  name_template: "{{ .Tag }}-next"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^ci:"
+
+release:
+  github:
+    owner: fchimpan
+    name: gpc
+
+brews:
+  - tap:
+      owner: fchimpan
+      name: homeberw-gpc
+    description: "gpc is cli tool to create any page you want anywhere in confluence"
