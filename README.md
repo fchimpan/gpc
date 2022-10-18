@@ -1,6 +1,4 @@
-# gpc
-
-A tool to generate pages in confluence
+# A tool to generate pages in confluence(gpc)
 
 ## install
 
