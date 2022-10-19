@@ -23,14 +23,14 @@ export CONFLUENCE_USER_EMAIL=<confluence user email>
 
 ## usage
 
-| param          | required | value                                                            | 
-| -------------- | -------- | ---------------------------------------------------------------- | 
-| -t, --title    | yes      | generated page title                                             | 
-| -s, --spaceKey | yes      | confluence space key to generate page                            | 
-| -d, --domain   | yes      | confluence domain. e.g. https://`domain`.atlassian.net/wiki/home | 
-| -p, --parent   |          | parent page ID                                                   | 
-| -b, --body     |          | body of the page                                                 | 
-| --debug        |          | debug flag                                                       | 
+| param          | required | value                                                                         | 
+| -------------- | -------- | ----------------------------------------------------------------------------- | 
+| -t, --title    | yes      | generated page title                                                          | 
+| -s, --spaceKey | yes      | confluence space key to generate page                                         | 
+| -d, --domain   | yes      | confluence domain. e.g. https://`domain`.atlassian.net/wiki/home              | 
+| -p, --parent   |          | parent page ID. If not set, a page will be generated directly under the space | 
+| -b, --body     |          | body of the page                                                              | 
+| --debug        |          | debug flag                                                                    | 
 
 ```bash
 % gpc -t 'page title' -s 'my-space' -d 'my-domain'                         
