@@ -1,0 +1,9 @@
+[config]
+space_key = dummy
+domain = dummy
+parent = dummy
+
+[config name includes space]
+space_key = dummy
+domain = dummy
+parent = dummy
