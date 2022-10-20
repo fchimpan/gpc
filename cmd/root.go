@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/fchimpan/gpc/credentials"
 	"github.com/spf13/cobra"
 	goconfluence "github.com/virtomize/confluence-go-api"
 )
@@ -12,16 +13,18 @@ import (
 const pageBaseURL = "https://%s.atlassian.net/wiki/spaces/%s/pages/%s"
 
 type options struct {
-	title    string
-	spaceKey string
-	domain   string
-	parent   string
-	body     string
-	debug    bool
+	title       string
+	spaceKey    string
+	domain      string
+	parent      string
+	body        string
+	debug       bool
+	credentials string
 }
 
 var (
-	o = &options{}
+	o       = &options{}
+	homeDir string
 )
 
 func Execute() {
@@ -37,14 +40,15 @@ var rootCmd = &cobra.Command{
 	Long:  "gpc is cli tool to create any page you want anywhere in confluence",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		goconfluence.DebugFlag = o.debug
-		apiToken := os.Getenv("CONFLUENCE_API_TOKEN")
-		userEmail := os.Getenv("CONFLUENCE_USER_EMAIL")
-		if apiToken == "" || userEmail == "" {
-			return fmt.Errorf("please set environment variables")
+
+		credFilePath := fmt.Sprintf("%s/.gpc/credentials", homeDir)
+		cred, err := credentials.GetCredentials(credFilePath, o.credentials)
+		if err != nil || cred.ConfluenceAPIToken == "" || cred.ConfluenceAEmail == "" {
+			return fmt.Errorf("credentials file is not correct: %v", err)
 		}
 
 		// reference: https://developer.atlassian.com/cloud/confluence/rest/v1/api-group-content/#api-wiki-rest-api-content-post
-		api, err := goconfluence.NewAPI(fmt.Sprintf("https://%s.atlassian.net/wiki/rest/api", o.domain), userEmail, apiToken)
+		api, err := goconfluence.NewAPI(fmt.Sprintf("https://%s.atlassian.net/wiki/rest/api", o.domain), cred.ConfluenceAEmail, cred.ConfluenceAPIToken)
 		if err != nil {
 			return err
 		}
@@ -97,4 +101,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&o.parent, "parent", "p", "", "parent page ID")
 	rootCmd.PersistentFlags().StringVarP(&o.body, "body", "b", "", "page body")
 	rootCmd.PersistentFlags().BoolVar(&o.debug, "debug", false, "debug flag")
+	rootCmd.PersistentFlags().StringVarP(&o.credentials, "credentials", "c", "default", "credentials section name")
+
+	homeDir, _ = os.UserHomeDir()
 }
