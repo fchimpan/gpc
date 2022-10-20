@@ -38,7 +38,7 @@ vim ~/.gpc/profile
 [<profile name>]
 space_key = confluence space key to generate page  
 domain = confluence domain. e.g. https://`domain`.atlassian.net/wiki/home 
-parent = parent page ID  # optional
+parent = parent page ID  # optional. If parent is not set, the page is generated directly under the space
 ```
 
 ## usage
