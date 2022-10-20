@@ -2,8 +2,16 @@
 
 ## install
 
+### brew
+
 ```bash
-go install
+brew tap fchimpan/gpc
+brew install fchimpan/gpc/gpc
+```
+
+### go install
+```bash
+go install github.com/fchimpan/gpc
 ```
 
 ## setup
