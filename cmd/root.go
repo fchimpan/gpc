@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	"github.com/fchimpan/gpc/config"
 	"github.com/fchimpan/gpc/credentials"
 	"github.com/spf13/cobra"
 	goconfluence "github.com/virtomize/confluence-go-api"
@@ -14,12 +15,10 @@ const pageBaseURL = "https://%s.atlassian.net/wiki/spaces/%s/pages/%s"
 
 type options struct {
 	title       string
-	spaceKey    string
-	domain      string
-	parent      string
 	body        string
 	debug       bool
 	credentials string
+	config      string
 }
 
 var (
@@ -39,16 +38,27 @@ var rootCmd = &cobra.Command{
 	Short: "gpc is cli tool to generate pages in confluence",
 	Long:  "gpc is cli tool to create any page you want anywhere in confluence",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		goconfluence.DebugFlag = o.debug
-
 		credFilePath := fmt.Sprintf("%s/.gpc/credentials", homeDir)
 		cred, err := credentials.GetCredentials(credFilePath, o.credentials)
 		if err != nil || cred.ConfluenceAPIToken == "" || cred.ConfluenceAEmail == "" {
 			return fmt.Errorf("credentials file is not correct: %v", err)
 		}
 
+		configFilePath := fmt.Sprintf("%s/.gpc/config", homeDir)
+		cfg, err := config.GetConfig(configFilePath, o.config)
+		if err != nil || cfg.Domain == "" || cfg.SpaceKey == "" {
+			return fmt.Errorf("config file is not correct: %v", err)
+		}
+
+		goconfluence.DebugFlag = o.debug
+		if goconfluence.DebugFlag {
+			log.Printf("input: %+v\n", o)
+			log.Printf("credentials: %+v\n", cred)
+			log.Printf("config: %+v\n", cfg)
+		}
+
 		// reference: https://developer.atlassian.com/cloud/confluence/rest/v1/api-group-content/#api-wiki-rest-api-content-post
-		api, err := goconfluence.NewAPI(fmt.Sprintf("https://%s.atlassian.net/wiki/rest/api", o.domain), cred.ConfluenceAEmail, cred.ConfluenceAPIToken)
+		api, err := goconfluence.NewAPI(fmt.Sprintf("https://%s.atlassian.net/wiki/rest/api", cfg.Domain), cred.ConfluenceAEmail, cred.ConfluenceAPIToken)
 		if err != nil {
 			return err
 		}
@@ -65,12 +75,12 @@ var rootCmd = &cobra.Command{
 				Number: 1,
 			},
 			Space: goconfluence.Space{
-				Key: o.spaceKey,
+				Key: cfg.SpaceKey,
 			},
 			Status: "current",
 		}
-		if o.parent != "" {
-			data.Ancestors = []goconfluence.Ancestor{{ID: o.parent}}
+		if cfg.Parent != "" {
+			data.Ancestors = []goconfluence.Ancestor{{ID: cfg.Parent}}
 		}
 
 		c, err := api.CreateContent(data)
@@ -78,27 +88,22 @@ var rootCmd = &cobra.Command{
 			return err
 		}
 
-		fmt.Println("page generation succeeded!!\n", fmt.Sprintf("title: %s\n", c.Title), fmt.Sprintf(pageBaseURL, o.domain, c.Space.Key, c.ID))
+		fmt.Println("page generation succeeded!!\n", fmt.Sprintf("title: %s\n", c.Title), fmt.Sprintf(pageBaseURL, cfg.Domain, c.Space.Key, c.ID))
 		return nil
 	},
 }
 
 func init() {
 	rootCmd.PersistentFlags().StringVarP(&o.title, "title", "t", "", "page title")
-	rootCmd.PersistentFlags().StringVarP(&o.spaceKey, "spaceKey", "s", "", "space key to generate page")
-	rootCmd.PersistentFlags().StringVarP(&o.domain, "domain", "d", "", "confluence domain: e.g. https://<domain>.atlassian.net/wiki/home")
+	rootCmd.PersistentFlags().StringVarP(&o.config, "profile", "p", "", "config profile name")
 
 	if err := rootCmd.MarkPersistentFlagRequired("title"); err != nil {
 		log.Fatal(err)
 	}
-	if err := rootCmd.MarkPersistentFlagRequired("spaceKey"); err != nil {
-		log.Fatal(err)
-	}
-	if err := rootCmd.MarkPersistentFlagRequired("domain"); err != nil {
+	if err := rootCmd.MarkPersistentFlagRequired("profile"); err != nil {
 		log.Fatal(err)
 	}
 
-	rootCmd.PersistentFlags().StringVarP(&o.parent, "parent", "p", "", "parent page ID")
 	rootCmd.PersistentFlags().StringVarP(&o.body, "body", "b", "", "page body")
 	rootCmd.PersistentFlags().BoolVar(&o.debug, "debug", false, "debug flag")
 	rootCmd.PersistentFlags().StringVarP(&o.credentials, "credentials", "c", "default", "credentials section name")
