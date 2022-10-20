@@ -22,10 +22,10 @@ go install github.com/fchimpan/gpc
 mkdir ~/.gpc
 ```
 
-2. create `credential file`
+2. create `credentials` file
 
 ```bash
-vim ~/.gpc/credential
+vim ~/.gpc/credentials
 [default]
 confluence_api_token = <your api token>
 confluence_email = <confluence user email>
