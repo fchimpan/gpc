@@ -26,6 +26,7 @@ mkdir ~/.gpc
 
 ```bash
 vim ~/.gpc/credentials
+
 [default]
 confluence_api_token = <your api token>
 confluence_email = <confluence user email>
@@ -35,6 +36,7 @@ confluence_email = <confluence user email>
 
 ```bash
 vim ~/.gpc/profile
+
 [<profile name>]
 space_key = confluence space key to generate page  
 domain = confluence domain. e.g. https://`domain`.atlassian.net/wiki/home 
