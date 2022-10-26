@@ -32,10 +32,10 @@ confluence_api_token = <your api token>
 confluence_email = <confluence user email>
 ```
 
-3. create `profile`
+3. create `config` file
 
 ```bash
-vim ~/.gpc/profile
+vim ~/.gpc/config
 
 [<profile name>]
 space_key = confluence space key to generate page  
