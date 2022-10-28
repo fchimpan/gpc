@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 
 	"github.com/fchimpan/gpc/config"
 	"github.com/fchimpan/gpc/credentials"
@@ -38,13 +39,13 @@ var rootCmd = &cobra.Command{
 	Short: "gpc is cli tool to generate pages in confluence",
 	Long:  "gpc is cli tool to create any page you want anywhere in confluence",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		credFilePath := fmt.Sprintf("%s/.gpc/credentials", homeDir)
+		credFilePath := filepath.Join(homeDir, ".gpc", "credentials")
 		cred, err := credentials.GetCredentials(credFilePath, o.credentials)
 		if err != nil || cred.ConfluenceAPIToken == "" || cred.ConfluenceAEmail == "" {
 			return fmt.Errorf("credentials file is not correct: %v", err)
 		}
 
-		configFilePath := fmt.Sprintf("%s/.gpc/config", homeDir)
+		configFilePath := filepath.Join(homeDir, ".gpc", "config")
 		cfg, err := config.GetConfig(configFilePath, o.config)
 		if err != nil || cfg.Domain == "" || cfg.SpaceKey == "" {
 			return fmt.Errorf("config file is not correct: %v", err)
