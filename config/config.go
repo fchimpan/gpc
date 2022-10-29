@@ -1,6 +1,8 @@
 package config
 
-import "gopkg.in/ini.v1"
+import (
+	"gopkg.in/ini.v1"
+)
 
 type Config struct {
 	SpaceKey string `ini:"space_key"`
@@ -19,4 +21,12 @@ func GetConfig(configFilePath, sectionName string) (*Config, error) {
 		Parent:   c.Section(sectionName).Key("parent").String(),
 	}
 	return cfg, nil
+}
+
+func GetAllConfig(configFilePath string) ([]string, error) {
+	c, err := ini.Load(configFilePath)
+	if err != nil {
+		return nil, err
+	}
+	return c.SectionStrings()[1:], nil
 }
