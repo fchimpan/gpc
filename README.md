@@ -1,6 +1,5 @@
 # A tool to generate pages in confluence(gpc)
 
-![gpc-demo](https://user-images.githubusercontent.com/52129983/198816064-3f11fb58-9d25-4e1a-a2e9-4eaded223eab.gif)
 
 ## install
 
