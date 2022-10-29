@@ -1,5 +1,7 @@
 # A tool to generate pages in confluence(gpc)
 
+![gpc-demo](https://user-images.githubusercontent.com/52129983/198816064-3f11fb58-9d25-4e1a-a2e9-4eaded223eab.gif)
+
 ## install
 
 ### brew
@@ -45,16 +47,17 @@ parent = parent page ID  # optional. If parent is not set, the page is generated
 
 ## usage
 
-| param             | required | value                                |
-| ----------------- | -------- | ------------------------------------ |
-| -t, --title       | yes      | generated page title                 |
-| -p, --profile     | yes      | profile name                         |
-| -b, --body        |          | body of the page                     |
-| -c, --credentials |          | chose credential. default: [default] |
-| --debug           |          | debug flag                           |
+| param             | type   | value                                         |
+| ----------------- | ------ | --------------------------------------------- |
+| -b, --body        | bool   | If this flag is set, page body can be entered |
+| -c, --credentials | string | chose credential. default: [default]          |
+| --debug           | bool   | debug flag                                    |
 
 ```bash
-% gpc -p 'profile' -t 'page title'
+% gpc 
+
+✔ dev                  # select parent
+Page title: page title # input page title
 # page generation succeeded!!
 # title: page title
 # https://my-domain.atlassian.net/wiki/spaces/my-space/pages/xxxx
