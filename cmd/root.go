@@ -8,6 +8,7 @@ import (
 
 	"github.com/fchimpan/gpc/config"
 	"github.com/fchimpan/gpc/credentials"
+	"github.com/fchimpan/gpc/prompt"
 	"github.com/spf13/cobra"
 	goconfluence "github.com/virtomize/confluence-go-api"
 )
@@ -15,16 +16,15 @@ import (
 const pageBaseURL = "https://%s.atlassian.net/wiki/spaces/%s/pages/%s"
 
 type options struct {
-	title       string
-	body        string
+	body        bool
 	debug       bool
 	credentials string
-	config      string
 }
 
 var (
 	o       = &options{}
 	homeDir string
+	body    string
 )
 
 func Execute() {
@@ -46,9 +46,29 @@ var rootCmd = &cobra.Command{
 		}
 
 		configFilePath := filepath.Join(homeDir, ".gpc", "config")
-		cfg, err := config.GetConfig(configFilePath, o.config)
+		configs, err := config.GetAllConfig(configFilePath)
+		if err != nil {
+			return err
+		}
+		c, err := prompt.SelectConfig(configs)
+		if err != nil {
+			return err
+		}
+
+		cfg, err := config.GetConfig(configFilePath, c)
 		if err != nil || cfg.Domain == "" || cfg.SpaceKey == "" {
 			return fmt.Errorf("config file is not correct: %v", err)
+		}
+
+		title, err := prompt.InputPageTitle()
+		if err != nil {
+			return err
+		}
+
+		if o.body {
+			if body, err = prompt.InputPageBody(); err != nil {
+				return err
+			}
 		}
 
 		goconfluence.DebugFlag = o.debug
@@ -65,10 +85,10 @@ var rootCmd = &cobra.Command{
 		}
 		data := &goconfluence.Content{
 			Type:  "page",
-			Title: o.title,
+			Title: title,
 			Body: goconfluence.Body{
 				Storage: goconfluence.Storage{
-					Value:          o.body,
+					Value:          body,
 					Representation: "storage",
 				},
 			},
@@ -84,28 +104,18 @@ var rootCmd = &cobra.Command{
 			data.Ancestors = []goconfluence.Ancestor{{ID: cfg.Parent}}
 		}
 
-		c, err := api.CreateContent(data)
+		content, err := api.CreateContent(data)
 		if err != nil {
 			return err
 		}
 
-		fmt.Println("page generation succeeded!!\n", fmt.Sprintf("title: %s\n", c.Title), fmt.Sprintf(pageBaseURL, cfg.Domain, c.Space.Key, c.ID))
+		fmt.Println("page generation succeeded!!\n", fmt.Sprintf("title: %s\n", content.Title), fmt.Sprintf(pageBaseURL, cfg.Domain, content.Space.Key, content.ID))
 		return nil
 	},
 }
 
 func init() {
-	rootCmd.PersistentFlags().StringVarP(&o.title, "title", "t", "", "page title")
-	rootCmd.PersistentFlags().StringVarP(&o.config, "profile", "p", "", "config profile name")
-
-	if err := rootCmd.MarkPersistentFlagRequired("title"); err != nil {
-		log.Fatal(err)
-	}
-	if err := rootCmd.MarkPersistentFlagRequired("profile"); err != nil {
-		log.Fatal(err)
-	}
-
-	rootCmd.PersistentFlags().StringVarP(&o.body, "body", "b", "", "page body")
+	rootCmd.PersistentFlags().BoolVarP(&o.body, "body", "b", false, "page body")
 	rootCmd.PersistentFlags().BoolVar(&o.debug, "debug", false, "debug flag")
 	rootCmd.PersistentFlags().StringVarP(&o.credentials, "credentials", "c", "default", "credentials section name")
 
